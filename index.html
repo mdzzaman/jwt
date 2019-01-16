@@ -39,6 +39,7 @@
             float: right;
             width: 48%;
             height: 100%;
+            margin-top: 27px;
         }
 
         .left textarea,
@@ -46,40 +47,129 @@
         .right textarea,
         .right #decode,
         .right .result {
-            border: 1px;
-            border-style: solid;
-            border-color: aquamarine;
             float: left;
             width: 100%;
+        }
+
+        .border {
+            border: 3px;
+            border-style: solid;
+            border-color: blueviolet;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+        }
+
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px;
+            margin: 5px;
+        }
+
+        .string {
+            color: green;
+        }
+
+        .number {
+            color: darkorange;
+        }
+
+        .boolean {
+            color: blue;
+        }
+
+        .null {
+            color: magenta;
+        }
+
+        .key {
+            color: red;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="left">
-            <textarea name="token" id="token" rows="30"></textarea>
+        <div class="left" class="border">
+            Input Jwt token <button id="convart" class="button">Convart</button>
+            <textarea name="token" id="token" class="border" rows="30"></textarea>
         </div>
         <div class="right">
-            <!-- <div class="result" id="decode"></div> -->
-            <textarea name="decode" id="decode" rows="30" readonly></textarea>
+            Output
+            <div class="result" id="decode"></div>
+            <!-- <textarea name="decode" id="decode" rows="30" readonly></textarea> -->
         </div>
     </div>
 </body>
 <script>
+    function syntaxHighlight(json) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return spaneCreate(cls, match);
+        });
+    }
+    function spaneCreate(cls, value) {
+        if (cls == "number") {
+            value = value + ' // ' + new Date(value * 1).toString();
+        }
+        return '<span class="' + cls + '">' + value + '</span>';
+    }
+    function parseJson(data) {
+        try {
+            return JSON.parse(window.atob(data));
+        } catch (e) {
+            return false; // error in the above string (in this case, yes)!
+        }
+    }
     function parseJwt(token) {
         var base64Url = token.split('.')[1];
         var base64 = base64Url.replace('-', '+').replace('_', '/');
-        return JSON.parse(window.atob(base64));
+        return parseJson(base64);
     };
+    function renderData(data) {
+        var invalidToken = '<spane style="color: red;">Invalid Token</spane>';
+        // document.getElementById("decode").value = data;
+        // document.getElementById("decode").innerHTML = data;
+        document.getElementById("decode").innerHTML = '';
+        document.getElementById("decode").appendChild(document.createElement('pre')).innerHTML = !!data ? data : invalidToken;
+    }
+    function run() {
+        var parseJson = parseJwt(document.getElementById("token").value);
+        var formatedJson = parseJson ? JSON.stringify(parseJson, undefined, 4) : parseJson;
+        var highlightData = formatedJson ? syntaxHighlight(formatedJson) : formatedJson;
+        renderData(highlightData);
+    }
     function decode() {
         setTimeout(function () {
-            document.getElementById("decode").value = JSON.stringify(parseJwt(document.getElementById("token").value), undefined, 4);
-            //document.getElementById("decode").innerHTML = JSON.stringify(parseJwt(document.getElementById("token").value));
+            run();
         }, 300)
     }
+
+    // event
     //document.getElementById("token").addEventListener('change', decode);
     document.getElementById("token").addEventListener('paste', decode);
+    document.getElementById("convart").addEventListener('click', run);
 </script>
 
 </html>
