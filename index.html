@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jwt token docode</title>
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            float: left;
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            border: 0px;
+        }
+
+        .container {
+            float: left;
+            width: 95%;
+            height: 100%;
+            margin: 0px;
+            padding: 15px;
+            border: 0px;
+        }
+
+        .left {
+            float: left;
+            width: 48%;
+            height: 100%;
+        }
+
+        .right {
+            float: right;
+            width: 48%;
+            height: 100%;
+        }
+
+        .left textarea,
+        .left #token,
+        .right textarea,
+        .right #decode,
+        .right .result {
+            border: 1px;
+            border-style: solid;
+            border-color: aquamarine;
+            float: left;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <textarea name="token" id="token" rows="30"></textarea>
+        </div>
+        <div class="right">
+            <!-- <div class="result" id="decode"></div> -->
+            <textarea name="decode" id="decode" rows="30" readonly></textarea>
+        </div>
+    </div>
+</body>
+<script>
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace('-', '+').replace('_', '/');
+        return JSON.parse(window.atob(base64));
+    };
+    function decode() {
+        setTimeout(function () {
+            document.getElementById("decode").value = JSON.stringify(parseJwt(document.getElementById("token").value), undefined, 4);
+            //document.getElementById("decode").innerHTML = JSON.stringify(parseJwt(document.getElementById("token").value));
+        }, 300)
+    }
+    //document.getElementById("token").addEventListener('change', decode);
+    document.getElementById("token").addEventListener('paste', decode);
+</script>
+
+</html>
