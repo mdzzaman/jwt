@@ -1,2 +1,2 @@
 # jwt
-[View JWT Tken](https://mdzzaman.github.io/jwt/) version 1.0.0.
+[View JWT Token](https://mdzzaman.github.io/jwt/) version 1.0.0.
